@@ -13,7 +13,9 @@ warnings.filterwarnings('ignore')
 
 #Import Data
 
-df_hr = pd.read_csv("https://github.com/BhargavArunkumar/HR_Attrition/blob/main/Trainingfile/HR_.csv")
+url = "https://raw.githubusercontent.com/BhargavArunkumar/HR_Attrition/main/Training_file/HR_.csv"
+
+df_hr = pd.read_csv(url)
 print(df_hr.head())
 
 print(df_hr.tail())
@@ -26,17 +28,17 @@ print(df_hr.shape)
 
 print(df_hr.isna().sum())
 
-"""#Defining Target and Independent Features"""
+#Defining Target and Independent Features
 
 X = df_hr.drop(['left'], axis = 1)
 
 y = df_hr[['left']]
 
-"""#Get the Rate of Leaving"""
+#Get the Rate of Leaving
 
 print(y.mean())
 
-"""#Split features into Numerical and Categorical"""
+#Split features into Numerical and Categorical
 
 num = X.select_dtypes(include= 'number')
 char = X.select_dtypes(include= 'object')
@@ -45,7 +47,7 @@ print(num.head())
 
 print(char.head())
 
-"""#Dropping the indicator features from num to build a separate DF"""
+#Dropping the indicator features from num to build a separate DF
 
 print(num.promotion_last_5years.value_counts())
 
@@ -54,11 +56,11 @@ print(num.Work_accident.value_counts())
 num = num.drop('Work_accident', axis=1)
 print(num.head())
 
-"""#Outlier Analysis of Numerical Features"""
+#Outlier Analysis of Numerical Features
 
 print(num.describe(percentiles=[0.01,0.05,0.10,0.25,0.50,0.75,0.85,0.9,0.99]))
 
-"""#Capping and Flooring of outliers"""
+#Capping and Flooring of outliers
 
 def outlier_cap(x):
     x=x.clip(lower=x.quantile(0.01))
@@ -69,10 +71,9 @@ num=num.apply(lambda x : outlier_cap(x))
 
 print(num.describe(percentiles=[0.01,0.05,0.10,0.25,0.50,0.75,0.85,0.9,0.99]))
 
-"""#Feature Selection - Numerical Features
+#Feature Selection - Numerical Features
 
 ##Part 1 : Remove Features with 0 Variance
-"""
 
 from sklearn.feature_selection import VarianceThreshold
 varselector = VarianceThreshold(threshold = 0)
@@ -83,7 +84,7 @@ num_1 = num.iloc[:,cols]
 
 print(num_1.iloc[0])
 
-"""##Part 2 : Bi Variate Analysis (Feature Discretization)"""
+##Part 2 : Bi Variate Analysis (Feature Discretization)
 
 from sklearn.preprocessing import KBinsDiscretizer
 discrete = KBinsDiscretizer(n_bins = 10, encode = 'ordinal', strategy = 'quantile')
@@ -119,12 +120,12 @@ print(select_features_df_num.loc[:0])
 
 print(select_features_df_num.shape)
 
-"""#Feature Selection - Categorical Features"""
+#Feature Selection - Categorical Features
 
 print(char.head())
 print(char.shape)
 
-"""## Part 1 - Bi Variate Analysis"""
+## Part 1 - Bi Variate Analysis
 
 X_char_merged = pd.concat([y,char],axis=1,join='inner')
 
@@ -141,7 +142,7 @@ print(X_char_dum.shape)
 
 print(X_char_dum.head())
 
-"""##Part 2 - Select K Best"""
+##Part 2 - Select K Best
 
 # Select K Best for Categorical Features
 selector = SelectKBest(chi2, k=11)
@@ -152,7 +153,7 @@ select_features_df_char = X_char_dum.iloc[:,cols]
 
 print(select_features_df_char.iloc[0])
 
-"""# Creating the Master Feature Set for Model Development"""
+# Creating the Master Feature Set for Model Development
 
 X_all=pd.concat([select_features_df_char,select_features_df_num],axis=1,join="inner")
 
@@ -278,7 +279,7 @@ print("f1_score",metrics.f1_score(y_test,y_pred_stacking))
 
 metrics.plot_confusion_matrix(clf,X_all,y, values_format= 'd')
 
-"""# Lorenz Curve"""
+# Lorenz Curve
 
 # Logistic Regression Lorenz Curve
 
@@ -315,7 +316,7 @@ sorted_reindexed['Lift_over_Avg']=sorted_reindexed['Actual_event_rate']/(max(sor
 print(sorted_reindexed)
 
 fig, axes = plt.subplots(1, 3, sharex=True, figsize=(15,5))
-fig.suptitle('Effectiveness of Deciles based on Model Probabilities')
+fig.suptitle('Effectiveness of Deciles based on Model Probabilities for Logistic Regression')
 axes[0].set_title('Rank Ordering of Actual Event Rate')
 axes[1].set_title('Lift over Mean Event Rate')
 axes[2].set_title('Gains Chart')
@@ -359,7 +360,7 @@ sorted_reindexed['Lift_over_Avg']=sorted_reindexed['Actual_event_rate']/(max(sor
 print(sorted_reindexed)
 
 fig, axes = plt.subplots(1, 3, sharex=True, figsize=(15,5))
-fig.suptitle('Effectiveness of Deciles based on Model Probabilities')
+fig.suptitle('Effectiveness of Deciles based on Model Probabilities for Decision Tree')
 axes[0].set_title('Rank Ordering of Actual Event Rate')
 axes[1].set_title('Lift over Mean Event Rate')
 axes[2].set_title('Gains Chart')
@@ -403,7 +404,7 @@ sorted_reindexed['Lift_over_Avg']=sorted_reindexed['Actual_event_rate']/(max(sor
 print(sorted_reindexed)
 
 fig, axes = plt.subplots(1, 3, sharex=True, figsize=(15,5))
-fig.suptitle('Effectiveness of Deciles based on Model Probabilities')
+fig.suptitle('Effectiveness of Deciles based on Model Probabilities Random Forest')
 axes[0].set_title('Rank Ordering of Actual Event Rate')
 axes[1].set_title('Lift over Mean Event Rate')
 axes[2].set_title('Gains Chart')
@@ -447,7 +448,7 @@ sorted_reindexed['Lift_over_Avg']=sorted_reindexed['Actual_event_rate']/(max(sor
 print(sorted_reindexed)
 
 fig, axes = plt.subplots(1, 3, sharex=True, figsize=(15,5))
-fig.suptitle('Effectiveness of Deciles based on Model Probabilities')
+fig.suptitle('Effectiveness of Deciles based on Model Probabilities Gradient Boost')
 axes[0].set_title('Rank Ordering of Actual Event Rate')
 axes[1].set_title('Lift over Mean Event Rate')
 axes[2].set_title('Gains Chart')
@@ -474,7 +475,7 @@ df_hr['average_montly_hours_Segment']=np.where(df_hr['average_montly_hours_Rank'
 
 df_hr['attrition_Rank']=np.where(df_hr['P_Rank_GBM']>=8,"Top 3","Bottom 7")
 
-"""# Slice the data with respect to Top 3  Ranks from the GBM Model output"""
+# Slice the data with respect to Top 3  Ranks from the GBM Model output
 
 df_top3 = df_hr.loc[df_hr['attrition_Rank']=='Top 3',:]
 print(df_top3.head())
@@ -496,21 +497,12 @@ print(pd.crosstab(index=df_top3['time_spend_company'], columns=df_top3['Satisfac
 
 print(df_hr.groupby('P_Rank_GBM')['pred_prob_gbm'].agg(['min','max','mean']))
 
-"""# Concluding Notes
+# Concluding Notes
 
-1) The HR Team or the Managres can target employees that fall in the "Top 3" deciles and distribute the working hours accordingly.
-  
-  
-  2) Followed by the employees that fall in the Mid 2 deciles
+#1) The HR Team or the Managres can target employees that fall in the "Top 3" deciles and distribute the working hours accordingly.
+#2) Followed by the employees that fall in the Mid 2 deciles
 
+#***Prbability Cutoff to be applied is:***
 
----
-
-
-***Prbability Cutoff to be applied is:***
-
-  1) Phase-1: Focus on the Prob value >=0.908534
-
-
-  2) Phase-2: Focus on the Prob value >=0.016411 and <=0.908534
-"""
+# 1) Phase-1: Focus on the Prob value >=0.908534
+# 2) Phase-2: Focus on the Prob value >=0.016411 and <=0.908534
